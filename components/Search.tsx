@@ -2,6 +2,7 @@ import { SearchQuery, Source } from "@/types";
 import { IconArrowRight, IconBolt, IconSearch } from "@tabler/icons-react";
 import endent from "endent";
 import { FC, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { FaGlobe } from 'react-icons/fa';
 
 interface SearchProps {
   onSearch: (searchResult: SearchQuery) => void;
@@ -139,8 +140,8 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
       ) : (
         <div className="mx-auto flex h-full w-full max-w-[750px] flex-col items-center space-y-6 px-3 pt-32 sm:pt-64">
           <div className="flex items-center">
-            <IconBolt size={36} />
-            <div className="ml-1 text-center text-4xl">Clarity</div>
+            <FaGlobe size={36} />
+            <div className="ml-1 text-center text-4xl">Autonews</div>
           </div>
 
           {apiKey.length === 51 ? (

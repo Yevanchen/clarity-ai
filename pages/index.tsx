@@ -13,13 +13,13 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Clarity AI</title>
+        <title>Autonews</title>
         <meta name="description" content="AI-powered search." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.png" />
       </Head>
       {/* 使用flex布局实现内容居中 */}
-      <div className="flex h-screen flex-col items-center justify-center overflow-auto bg-[#18181C] text-[#D4D4D8]">
+      <div className="flex h-screen flex-col items-center justify-center overflow-auto bg-white text-[#18181C]">
         {/* 社交媒体图标位置调整，根据需要调整 */}
         <div className="absolute top-0 right-12 p-4">
           <a href="https://twitter.com/XchenEvan" target="_blank" rel="noreferrer">
