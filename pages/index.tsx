@@ -14,38 +14,24 @@ export default function Home() {
     <>
       <Head>
         <title>Clarity AI</title>
-        <meta
-          name="description"
-          content="AI-powered search."
-        />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1"
-        />
-        <link
-          rel="icon"
-          href="/favicon.png"
-        />
+        <meta name="description" content="AI-powered search." />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.png" />
       </Head>
-      <div className="h-screen overflow-auto bg-[#18181C] text-[#D4D4D8]">
-        <a
-          className="absolute top-0 right-12 p-4 cursor-pointer"
-          href="https://twitter.com/mckaywrigley"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <IconBrandTwitter />
-        </a>
-
-        <a
-          className="absolute top-0 right-2 p-4 cursor-pointer"
-          href="https://github.com/mckaywrigley/clarity-ai"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <IconBrandGithub />
-        </a>
-
+      {/* 使用flex布局实现内容居中 */}
+      <div className="flex h-screen flex-col items-center justify-center overflow-auto bg-[#18181C] text-[#D4D4D8]">
+        {/* 社交媒体图标位置调整，根据需要调整 */}
+        <div className="absolute top-0 right-12 p-4">
+          <a href="https://twitter.com/XchenEvan" target="_blank" rel="noreferrer">
+            <IconBrandTwitter />
+          </a>
+        </div>
+        <div className="absolute top-0 right-2 p-4">
+          <a href="https://github.com/Yevanchen" target="_blank" rel="noreferrer">
+            <IconBrandGithub />
+          </a>
+        </div>
+        {/* 主要内容区域 */}
         {answer ? (
           <Answer
             searchQuery={searchQuery}
