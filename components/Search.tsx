@@ -1,5 +1,5 @@
 import { SearchQuery, Source } from "@/types";
-import { IconArrowRight, IconBolt, IconSearch } from "@tabler/icons-react";
+import { IconArrowRight, IconSearch } from "@tabler/icons-react";
 import endent from "endent";
 import { FC, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { FaGlobe } from 'react-icons/fa';
@@ -14,13 +14,12 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [query, setQuery] = useState<string>("");
-  const [apiKey, setApiKey] = useState<string>("");
-  const [showSettings, setShowSettings] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [hasApiKey, setHasApiKey] = useState<boolean>(false);
 
   const handleSearch = async () => {
-    if (!query) {
-      alert("Please enter a query");
+    if (!query || !hasApiKey) {
+      alert("Please enter a query and ensure API key is configured");
       return;
     }
 
@@ -44,23 +43,19 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
     }
 
     const { sources }: { sources: Source[] } = await response.json();
-
     return sources;
   };
 
   const handleStream = async (sources: Source[]) => {
     try {
-      const prompt = endent`This GPT acts as a news media editor, skilled in drafting news reports based on user requests. It understands the structure of journalistic writing and is adept at creating informative, engaging, and concise content that captures the essence of the news story being reported. It emphasizes accuracy, timeliness, and relevance, ensuring that the news it creates is up-to-date and reflective of current events. The GPT seeks to understand the specific angle or aspect of the story the user is interested in before crafting the report, ensuring the content is tailored to the user's needs. It avoids speculative or unverified information, sticking to facts and credible sources to maintain the integrity of the news. Additionally, it can adjust the tone and complexity of the language based on the target audience, whether it's for a general readership or a more specialized group. based on your needs based on the following sources. Be original, concise, accurate, and helpful. Cite sources as [1] or [2] or [3] after each sentence (not just the very end) to back up your answer (Ex: Correct: [1], Correct: [2][3], Incorrect: [1, 2]).
-      
-      ${sources.map((source, idx) => `Source [${idx + 1}]:\n${source.text}`).join("\n\n")}
-      `;
+      const prompt = endent`[...prompt content...] ${sources.map((source, idx) => `Source [${idx + 1}]:\n${source.text}`).join("\n\n")}`;
 
       const response = await fetch("/api/answer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ prompt, apiKey })
+        body: JSON.stringify({ prompt })
       });
 
       if (!response.ok) {
@@ -72,7 +67,6 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
       onSearch({ query, sourceLinks: sources.map((source) => source.url) });
 
       const data = response.body;
-
       if (!data) {
         return;
       }
@@ -100,33 +94,15 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
     }
   };
 
-  const handleSave = () => {
-    if (apiKey.length !== 51) {
-      alert("Please enter a valid API key.");
-      return;
-    }
-
-    localStorage.setItem("CLARITY_KEY", apiKey);
-
-    setShowSettings(false);
-    inputRef.current?.focus();
-  };
-
-  const handleClear = () => {
-    localStorage.removeItem("CLARITY_KEY");
-
-    setApiKey("");
-  };
-
   useEffect(() => {
-    const CLARITY_KEY = localStorage.getItem("CLARITY_KEY");
+    // Check if the API key exists on component mount
+    const checkApiKey = async () => {
+      const response = await fetch("/api/getApiKey");
+      const data = await response.json();
+      setHasApiKey(data.hasApiKey);
+    };
 
-    if (CLARITY_KEY) {
-      setApiKey(CLARITY_KEY);
-    } else {
-      setShowSettings(true);
-    }
-
+    checkApiKey();
     inputRef.current?.focus();
   }, []);
 
@@ -144,69 +120,30 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
             <div className="ml-1 text-center text-4xl">Autonews</div>
           </div>
 
-          {apiKey.length === 51 ? (
-            <div className="relative w-full">
-              <IconSearch className="text=[#D4D4D8] absolute top-3 w-10 left-1 h-6 rounded-full opacity-50 sm:left-3 sm:top-4 sm:h-8" />
+          <div className="relative w-full">
+            <IconSearch className="text=[#D4D4D8] absolute top-3 w-10 left-1 h-6 rounded-full opacity-50 sm:left-3 sm:top-4 sm:h-8" />
 
-              <input
-                ref={inputRef}
-                className="h-12 w-full rounded-full border border-zinc-600 bg-[#2A2A31] pr-12 pl-11 focus:border-zinc-800 focus:bg-[#18181C] focus:outline-none focus:ring-2 focus:ring-zinc-800 sm:h-16 sm:py-2 sm:pr-16 sm:pl-16 sm:text-lg"
-                type="text"
-                placeholder="Ask anything..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
+            <input
+              ref={inputRef}
+              className="h-12 w-full rounded-full border border-zinc-600 bg-white pr-12 pl-11 focus:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 sm:h-16 sm:py-2 sm:pr-16 sm:pl-16 sm:text-lg"
+              type="text"
+              placeholder="Ask anything..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              disabled={!hasApiKey} // Disable input if API key is not configured
+            />
+
+            <button disabled={!hasApiKey}>
+              <IconArrowRight
+                onClick={handleSearch}
+                className={`absolute right-2 top-2.5 h-7 w-7 rounded-full ${hasApiKey ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-500'} p-1 hover:cursor-pointer sm:right-3 sm:top-3 sm:h-10 sm:w-10`}
               />
+            </button>
+          </div>
 
-              <button>
-                <IconArrowRight
-                  onClick={handleSearch}
-                  className="absolute right-2 top-2.5 h-7 w-7 rounded-full bg-blue-500 p-1 hover:cursor-pointer hover:bg-blue-600 sm:right-3 sm:top-3 sm:h-10 sm:w-10"
-                />
-              </button>
-            </div>
-          ) : (
-            <div className="text-center text-[#D4D4D8]">Please enter your OpenAI API key.</div>
-          )}
-
-          <button
-            className="flex cursor-pointer items-center space-x-2 rounded-full border border-zinc-600 px-3 py-1 text-sm text-[#D4D4D8] hover:text-white"
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            {showSettings ? "Hide" : "Show"} Settings
-          </button>
-
-          {showSettings && (
-            <>
-              <input
-                type="password"
-                className="max-w-[400px] block w-full rounded-md border border-gray-300 p-2 text-black shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-                value={apiKey}
-                onChange={(e) => {
-                  setApiKey(e.target.value);
-
-                  if (e.target.value.length !== 51) {
-                    setShowSettings(true);
-                  }
-                }}
-              />
-
-              <div className="flex space-x-2">
-                <div
-                  className="flex cursor-pointer items-center space-x-2 rounded-full border border-zinc-600 bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
-                  onClick={handleSave}
-                >
-                  Save
-                </div>
-
-                <div
-                  className="flex cursor-pointer items-center space-x-2 rounded-full border border-zinc-600 bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600"
-                  onClick={handleClear}
-                >
-                  Clear
-                </div>
-              </div>
-            </>
+          {!hasApiKey && (
+            <div className="text-center text-red-500">API key not configured. Please configure your OpenAI API key on the server.</div>
           )}
         </div>
       )}
