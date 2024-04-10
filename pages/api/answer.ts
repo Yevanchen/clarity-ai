@@ -6,10 +6,17 @@ export const config = {
 
 const handler = async (req: Request): Promise<Response> => {
   try {
-    const { prompt, apiKey } = (await req.json()) as {
+    const { prompt } = (await req.json()) as {
       prompt: string;
-      apiKey: string;
     };
+
+    // 直接从环境变量获取 API 密钥，而不是从请求体
+    const apiKey = process.env.OPENAI_API_KEY;
+
+    // 确保已正确配置 API 密钥
+    if (!apiKey) {
+      throw new Error("OPENAI_API_KEY is not configured.");
+    }
 
     const stream = await OpenAIStream(prompt, apiKey);
 
