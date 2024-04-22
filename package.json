@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.2",
+    "ai": "^3.0.14",
     "@mozilla/readability": "^0.4.2",
     "@next/font": "13.1.6",
     "@tabler/icons": "^2.4.0",

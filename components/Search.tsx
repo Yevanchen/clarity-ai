@@ -18,10 +18,7 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
   const [hasApiKey, setHasApiKey] = useState<boolean>(false);
 
   const handleSearch = async () => {
-    if (!query || !hasApiKey) {
-      alert("Please enter a query and ensure API key is configured");
-      return;
-    }
+    
 
     setLoading(true);
     const sources = await fetchSources();
@@ -109,20 +106,20 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
   return (
     <>
       {loading ? (
-        <div className="flex items-center justify-center pt-64 sm:pt-72 flex-col">
+        <div className="flex items-center justify-center pt-64 sm:pt-72 flex-col bg-[#f3ebe1]">
           <div className="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
           <div className="mt-8 text-2xl">Getting answer...</div>
         </div>
       ) : (
-        <div className="mx-auto flex h-full w-full max-w-[750px] flex-col items-center space-y-6 px-3 pt-32 sm:pt-64">
+        <div className="mx-auto flex h-full w-full max-w-[750px] flex-col items-center space-y-6 px-3 pt-32 sm:pt-64 bg-[#f3ebe1]">
           <div className="flex items-center">
             <FaGlobe size={36} />
             <div className="ml-1 text-center text-4xl">Autonews</div>
           </div>
-
+  
           <div className="relative w-full">
             <IconSearch className="text=[#D4D4D8] absolute top-3 w-10 left-1 h-6 rounded-full opacity-50 sm:left-3 sm:top-4 sm:h-8" />
-
+  
             <input
               ref={inputRef}
               className="h-12 w-full rounded-full border border-zinc-600 bg-white pr-12 pl-11 focus:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 sm:h-16 sm:py-2 sm:pr-16 sm:pl-16 sm:text-lg"
@@ -131,9 +128,8 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              disabled={!hasApiKey} // Disable input if API key is not configured
             />
-
+  
             <button disabled={!hasApiKey}>
               <IconArrowRight
                 onClick={handleSearch}
@@ -141,12 +137,10 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
               />
             </button>
           </div>
-
-          {!hasApiKey && (
-            <div className="text-center text-red-500">API key not configured. Please configure your OpenAI API key on the server.</div>
-          )}
+          
         </div>
       )}
     </>
   );
+  
 };
