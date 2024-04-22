@@ -59,16 +59,19 @@ const searchHandler = async (req: NextApiRequest, res: NextApiResponse<Data>) =>
     // SCRAPE TEXT FROM LINKS
     const sources = (await Promise.all(
       finalLinks.map(async (link) => {
-        const response = await fetch(link);
+        // 在即将访问的每个链接前都加上https://r.jina.ai/
+        const proxyLink = `https://r.jina.ai/${link}`;
+    
+        const response = await fetch(proxyLink); // 使用代理链接
         const html = await response.text();
         const dom = new JSDOM(html);
         const doc = dom.window.document;
         const parsed = new Readability(doc).parse();
-
+    
         if (parsed) {
           let sourceText = cleanSourceText(parsed.textContent);
-
-          return { url: link, text: sourceText };
+    
+          return { url: link, text: sourceText }; // 返回原始链接和处理后的文本
         }
       })
     )) as Source[];
