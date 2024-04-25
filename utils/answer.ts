@@ -1,5 +1,9 @@
 import { OpenAIModel } from "@/types";
 import { createParser, ParsedEvent, ReconnectInterval } from "eventsource-parser";
+import { OpenAI } from '@ai-sdk/openai'
+import { createStreamableUI, createStreamableValue } from 'ai/rsc'
+import { ExperimentalMessage, experimental_streamObject } from 'ai'
+import { PartialInquiry, inquirySchema } from '@/lib/schema/inquiry'
 
 
 export const OpenAIStream = async (prompt: string, apiKey: string) => {
@@ -28,11 +32,10 @@ export const OpenAIStream = async (prompt: string, apiKey: string) => {
               sources to maintain the integrity of the news. Generate a comprehensive and informative answer for 
               a given question solely based on the provided web Search Results (URL and Summary). You must only 
               use information from the provided search results. Use an unbiased and journalistic tone. Use this 
-              current date and time: ${formatted_time}. Combine search results together into a coherent answer. 
-              Do not repeat text. Cite search results using [$number] notation, and don't link the citations. 
-              Only cite the most relevant results that answer the question accurately. If different results refer 
-              to different entities with the same name, write separate answers for each entity
-              Please do not respond with a single natural paragraph. You should use bullet points and ensure the readability of the article..` 
+              current date and time: ${formatted_time}.  
+              Do not repeat text. Cite search results using Link format: [number], and don't link the citations. 
+              Only cite the most relevant results that answer the question accurately. Please match the language of the response to the user's language.
+              Always answer in the format of a two-level heading in Markdown, and use ordered/unordered lists to expand and list key points where necessary. Provide a summary using the pyramid principle to improve readability.` 
             },
             { role: "user", content: prompt }
         ],
