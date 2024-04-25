@@ -2,7 +2,11 @@ import { SearchQuery, Source } from "@/types";
 import { IconArrowRight, IconSearch } from "@tabler/icons-react";
 import endent from "endent";
 import { FC, KeyboardEvent, useEffect, useRef, useState } from "react";
-import { FaGlobe } from 'react-icons/fa';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+import { EmojiGrid, EmojiItem } from "@/components/ui/EmojiGrid";
+
 
 interface SearchProps {
   onSearch: (searchResult: SearchQuery) => void;
@@ -12,14 +16,33 @@ interface SearchProps {
 
 export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) => {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [selectedText, setSelectedText] = useState<string>("");
 
   const [query, setQuery] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [hasApiKey, setHasApiKey] = useState<boolean>(false);
+  const headlines: EmojiItem[] = [
+    { emoji: "🌐", text: "Meta开放其Horizon OS给第三方" },
+    { emoji: "🍏", text: "苹果公司收购了另一家人工智能初创公司" },
+    { emoji: "🔋", text: "New rapidly charging sodium battery" },
+    { emoji: "🗓", text: "WWDC24 有哪些值得关注的话题" },
+    { emoji: "⚖️", text: ".SBF被判25年监禁" },
+    { emoji: "🚗", text: "Tesla vs Rivian" },
+    { emoji: "🤔", text: "Is the Apple Vision Pro worth buying?" },
+    { emoji: "🛠", text: "写一篇关于Tesla recalling all Cybertrucks的新闻报导" },
+    { emoji: "🌒", text: "The Great North American Eclipse" },
+    { emoji: "💸", text: "The Fed transfers $2 billion in confiscated Bitcoin" },
+    { emoji: "🍟", text: "荷兰麦当劳的创新营销活动。" },
+    { emoji: "🎵", text: "Billie Eilish opposes AI-made music" },
+    { emoji: "🎙", text: "Drake uses AI Tupac to record songs" },
+    { emoji: "🚫", text: "美国众议院拟禁止TikTok。" }
+  ];
+  
+  const updateQuery = (newQuery: string) => {
+    setQuery(newQuery);
+  };
 
   const handleSearch = async () => {
-    
-
     setLoading(true);
     const sources = await fetchSources();
     await handleStream(sources);
@@ -42,7 +65,10 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
     const { sources }: { sources: Source[] } = await response.json();
     return sources;
   };
-
+  const handleEmojiClick = (text: string) => {
+    setSelectedText(text);
+    updateQuery(text); // 假设 updateQuery 函数可以处理这个更新
+};
   const handleStream = async (sources: Source[]) => {
     try {
       const prompt = endent`[...prompt content...] ${sources.map((source, idx) => `Source [${idx + 1}]:\n${source.text}`).join("\n\n")}`;
@@ -92,7 +118,6 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
   };
 
   useEffect(() => {
-    // Check if the API key exists on component mount
     const checkApiKey = async () => {
       const response = await fetch("/api/getApiKey");
       const data = await response.json();
@@ -111,32 +136,32 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
           <div className="mt-8 text-2xl">Getting answer...</div>
         </div>
       ) : (
-        <div className="mx-auto flex h-full w-full max-w-[750px] flex-col items-center space-y-6 px-3 pt-32 sm:pt-64 bg-[#f3ebe1]">
+        <div className="mx-auto flex h-full w-full max-w-[2000px] flex-col items-center space-y-6 px-3 pt-20 sm:pt-64 bg-[#f3ebe1]">
           <div className="flex items-center">
-            <FaGlobe size={36} />
-            <div className="ml-1 text-center text-4xl">Autonews</div>
+            <img src="/title.png" alt="AutoNews" style={{ width: '380px', height: 'auto' }} />
           </div>
-  
-          <div className="relative w-full">
-            <IconSearch className="text=[#D4D4D8] absolute top-3 w-10 left-1 h-6 rounded-full opacity-50 sm:left-3 sm:top-4 sm:h-8" />
-  
-            <input
-              ref={inputRef}
-              className="h-12 w-full rounded-full border border-zinc-600 bg-white pr-12 pl-11 focus:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800 sm:h-16 sm:py-2 sm:pr-16 sm:pl-16 sm:text-lg"
-              type="text"
-              placeholder="Ask anything..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-  
-            <button disabled={!hasApiKey}>
-              <IconArrowRight
-                onClick={handleSearch}
-                className={`absolute right-2 top-2.5 h-7 w-7 rounded-full ${hasApiKey ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-500'} p-1 hover:cursor-pointer sm:right-3 sm:top-3 sm:h-10 sm:w-10`}
-              />
-            </button>
-          </div>
+
+          <div className="flex w-full max-w-2xl items-center space-x-2"> {/* Increase max-w-lg to max-w-2xl */}
+          <Input
+            ref={inputRef}
+            className="flex-1 rounded-lg border border-zinc-800 bg-white py-2 pr-16 pl-11 focus:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-800"
+            type="text"
+            placeholder="今天发生了什么"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <Button
+            disabled={!hasApiKey}
+            onClick={handleSearch}
+            className={`h-10 rounded-lg px-4 ${hasApiKey ? 'bg-black hover:bg-gray-800 text-white' : 'bg-gray-500 text-gray-200'} hover:cursor-pointer`}
+          >
+            Search
+          </Button>
+         
+        </div>
+        <EmojiGrid items={headlines} onEmojiClick={handleEmojiClick} />
+
           
         </div>
       )}
