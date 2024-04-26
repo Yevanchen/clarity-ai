@@ -1,9 +1,6 @@
 import { OpenAIModel } from "@/types";
 import { createParser, ParsedEvent, ReconnectInterval } from "eventsource-parser";
-import { OpenAI } from '@ai-sdk/openai'
-import { createStreamableUI, createStreamableValue } from 'ai/rsc'
-import { ExperimentalMessage, experimental_streamObject } from 'ai'
-import { PartialInquiry, inquirySchema } from '@/lib/schema/inquiry'
+
 
 
 export const OpenAIStream = async (prompt: string, apiKey: string) => {

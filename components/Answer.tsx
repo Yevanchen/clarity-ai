@@ -1,17 +1,29 @@
-import { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef,useState } from 'react';
 import { SearchQuery } from "@/types";
 import { IconReload } from "@tabler/icons-react";
 import { MemoizedReactMarkdown } from './ui/markdown'
+import { fetchTitles } from '@api/title';
+import { AvatarImage, Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { CardContent, Card } from '@/components/ui/card'
 
 interface AnswerProps {
   searchQuery: SearchQuery;
   answer: string;
   done: boolean;
   onReset: () => void;
+  titles?: string[]; // 添加 titles 属性
 }
 
 export const Answer: FC<AnswerProps> = ({ searchQuery, answer, done, onReset }) => {
   const markdownRef = useRef<HTMLDivElement>(null);
+  const [titles, setTitles] = useState<string[]>([]); // 添加状态以保存标题数组
+
+  useEffect(() => {
+    console.log("Source Links:", searchQuery.sourceLinks); // 查看 URL 是否正确
+    fetchTitles(searchQuery.sourceLinks).then(setTitles);
+    setTitles(titles);
+  }, [searchQuery.sourceLinks]);
+
 
   useEffect(() => {
     if (markdownRef.current) {
@@ -44,20 +56,57 @@ export const Answer: FC<AnswerProps> = ({ searchQuery, answer, done, onReset }) 
         </div>
 
         {done && (
-          <>
-            <div className="border-b border-zinc-800 pb-4">
-              <div className="text-md text-blue-500 font-georgia">Sources</div>
-              {searchQuery.sourceLinks.map((source, index) => (
-                <div key={index} className="mt-1 overflow-auto">
-                  {`[${index + 1}] `}
-                  <a className="hover:cursor-pointer hover:underline" target="_blank" rel="noopener noreferrer" href={source}>
-                    {source.split("//")[1].split("/")[0].replace("www.", "")}
-                  </a>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
+  <div className="border-b border-zinc-800 pb-4">
+    <div className="text-md text-blue-500 font-georgia">Sources</div>
+    <div className="flex flex-wrap"> {/* 使用 flex 布局 */}
+      {searchQuery.sourceLinks.map((source, index) => (
+        <div className="w-full md:w-1/2 lg:w-1/3 p-1" key={index}> {/* 响应式网格 */}
+          <Card className="flex flex-col h-full justify-between" style={{ minHeight: '100px' }}> {/* 确保有足够的空间显示内容 */}
+            <CardContent className="p-2">
+              <div className="flex items-center space-x-2 mb-2"> {/* 调整了间距 */}
+                <Avatar className="h-6 w-6"> {/* 头像尺寸 */}
+                  <AvatarImage
+                    src={`https://www.google.com/s2/favicons?domain=${new URL(source).hostname}`}
+                    alt={`Source ${index + 1}`}
+                  />
+                  <AvatarFallback>
+                    {new URL(source).hostname[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <a
+                  className="hover:cursor-pointer hover:underline text-xs sm:text-sm"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  href={source}
+                  style={{
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {`[${index + 1}] `}{new URL(source).hostname.replace("www.", "")}
+                </a>
+              </div>
+              <div
+                className="text-xs sm:text-sm"
+                style={{
+                  display: '-webkit-box',
+                  WebkitBoxOrient: 'vertical',
+                  WebkitLineClamp: 2,
+                  overflow: 'hidden'
+                }}
+              >
+                {titles[index] || new URL(source).hostname}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+
       </div>
 
       {done && (
