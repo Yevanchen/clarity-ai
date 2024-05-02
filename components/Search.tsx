@@ -70,6 +70,10 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
     updateQuery(text); // 假设 updateQuery 函数可以处理这个更新
 };
   const handleStream = async (sources: Source[]) => {
+    const sourceSummaries = sources.map(source => ({
+      url: source.url,
+      content: source.text.substring(0, 20), // First 20 characters of the content
+    }));
     try {
       const prompt = endent`[...prompt content...] ${sources.map((source, idx) => `Source [${idx + 1}]:\n${source.text}`).join("\n\n")}`;
 

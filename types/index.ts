@@ -11,3 +11,5 @@ export type SearchQuery = {
   query: string;
   sourceLinks: string[];
 };
+
+export type Titles = { [key: string]: string };
