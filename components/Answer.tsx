@@ -5,7 +5,7 @@ import { MemoizedReactMarkdown } from './ui/markdown'
 import { fetchTitles } from '@api/title';
 import { AvatarImage, Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { CardContent, Card } from '@/components/ui/card'
-
+import { Button } from '@/components/ui/button'
 interface AnswerProps {
   searchQuery: SearchQuery;
   answer: string;
@@ -17,6 +17,7 @@ interface AnswerProps {
 export const Answer: FC<AnswerProps> = ({ searchQuery, answer, done, onReset }) => {
   const markdownRef = useRef<HTMLDivElement>(null);
   const [titles, setTitles] = useState<string[]>([]); // 添加状态以保存标题数组
+  const [actions, setActions] = useState<string[]>([]);
 
   useEffect(() => {
     console.log("Source Links:", searchQuery.sourceLinks); // 查看 URL 是否正确
@@ -105,7 +106,24 @@ export const Answer: FC<AnswerProps> = ({ searchQuery, answer, done, onReset }) 
     </div>
   </div>
 )}
-
+{
+  /*
+  <div className="border-b border-zinc-800 pb-4 mt-4">
+    <div className="text-md text-blue-500 font-georgia mb-2">Actions</div>
+    <div className="flex flex-col space-y-2">
+      <Button variant="outline" className="border-blue-500 hover:bg-blue-500 hover:text-white">
+        Action 1
+      </Button>
+      <Button variant="outline" className="border-blue-500 hover:bg-blue-500 hover:text-white">
+        Action 2
+      </Button>
+      <Button variant="outline" className="border-blue-500 hover:bg-blue-500 hover:text-white">
+        Action 3
+      </Button>
+    </div>
+  </div>
+  */
+}
 
       </div>
 
