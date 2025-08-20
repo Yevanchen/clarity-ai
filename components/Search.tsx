@@ -59,7 +59,9 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
 
     if (!response.ok) {
       setLoading(false);
-      throw new Error(response.statusText);
+      const errorText = await response.text();
+      console.error("Sources API error:", response.status, errorText);
+      throw new Error(`Failed to fetch sources: ${response.status} ${response.statusText}`);
     }
 
     const { sources }: { sources: Source[] } = await response.json();
@@ -75,7 +77,15 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
       content: source.text.substring(0, 20), // First 20 characters of the content
     }));
     try {
-      const prompt = endent`[...prompt content...] ${sources.map((source, idx) => `Source [${idx + 1}]:\n${source.text}`).join("\n\n")}`;
+      const prompt = endent`
+        Provide a detailed answer to the question below based only on the provided search results (web pages).
+        If the search results don't contain relevant information, say "No relevant information found in the search results."
+        
+        Current Question: ${query}
+        
+        Search Results:
+        ${sources.map((source, idx) => `Source [${idx + 1}]:\n${source.text}`).join("\n\n")}
+      `;
 
       const response = await fetch("/api/answer", {
         method: "POST",
@@ -111,7 +121,9 @@ export const Search: FC<SearchProps> = ({ onSearch, onAnswerUpdate, onDone }) =>
 
       onDone(true);
     } catch (err) {
-      onAnswerUpdate("Error");
+      console.error("Search error:", err);
+      setLoading(false);
+      onAnswerUpdate("Error: " + (err instanceof Error ? err.message : "Unknown error"));
     }
   };
 

@@ -22,8 +22,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(stream);
   } catch (error) {
-    console.error(error);
-    return new Response("Error", { status: 500 });
+    console.error("Answer API Error:", error);
+    return new Response(JSON.stringify({ 
+      error: "Failed to generate answer", 
+      details: error instanceof Error ? error.message : String(error) 
+    }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
